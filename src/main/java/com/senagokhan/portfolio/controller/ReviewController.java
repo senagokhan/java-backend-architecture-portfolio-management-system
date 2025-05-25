@@ -1,11 +1,11 @@
 package com.senagokhan.portfolio.controller;
 
+import com.senagokhan.portfolio.dto.response.ReviewDto;
 import com.senagokhan.portfolio.entity.Review;
 import com.senagokhan.portfolio.service.ReviewService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/review")
@@ -20,6 +20,11 @@ public class ReviewController {
     public String addReview(@RequestBody Review review) {
         reviewService.addReview(review);
         return "Review added!";
+    }
+
+    @GetMapping("/project/{projectId}")
+    public List<ReviewDto> getReviewsByProject(@PathVariable Long projectId) {
+        return reviewService.getReviewsByProjectId(projectId);
     }
 }
 
