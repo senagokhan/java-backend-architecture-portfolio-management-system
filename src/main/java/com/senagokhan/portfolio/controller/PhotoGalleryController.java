@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/photo-gallery")
-public class PhotoGallery {
+public class PhotoGalleryController {
 
     private final PhotoGalleryService photoGalleryService;
 
-    public PhotoGallery(PhotoGalleryService photoGalleryService) {
+    public PhotoGalleryController(PhotoGalleryService photoGalleryService) {
         this.photoGalleryService = photoGalleryService;
     }
 }
