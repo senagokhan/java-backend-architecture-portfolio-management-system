@@ -18,13 +18,11 @@ public class PhotoGalleryService {
 
     private final UserRepository userRepository;
 
-
     public PhotoGalleryService(PhotoGalleryRepository photoGalleryRepository, ProjectRepository projectRepository, UserRepository userRepository) {
         this.photoGalleryRepository = photoGalleryRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
     }
-
 
     public PhotoGallerySaveResponse uploadPhoto(PhotoUploadRequest request) {
         try {
@@ -47,5 +45,4 @@ public class PhotoGalleryService {
             throw new RuntimeException("Error uploading photo: " + e.getMessage(), e);
         }
     }
-
 }

@@ -3,6 +3,7 @@ package com.senagokhan.portfolio.controller;
 import com.senagokhan.portfolio.dto.response.ReviewDto;
 import com.senagokhan.portfolio.entity.Review;
 import com.senagokhan.portfolio.service.ReviewService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +18,15 @@ public class ReviewController {
     }
 
     @PostMapping
-    public String addReview(@RequestBody Review review) {
-        reviewService.addReview(review);
-        return "Review added!";
+    public ResponseEntity<ReviewDto> addReview(@RequestBody Review review) {
+        ReviewDto response = reviewService.addReview(review);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteReview(@PathVariable Long id) {
+        reviewService.deleteReviewById(id);
+        return ResponseEntity.ok("Review deleted!");
     }
 
     @GetMapping("/project/{projectId}")

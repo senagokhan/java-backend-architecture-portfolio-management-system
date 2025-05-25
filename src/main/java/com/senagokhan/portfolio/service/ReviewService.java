@@ -16,12 +16,17 @@ public class ReviewService {
         this.reviewRepository = reviewRepository;
     }
 
-    public Review addReview(Review review) {
+    public ReviewDto addReview(Review review) {
         try {
             if (review.getRating() < 1 || review.getRating() > 5) {
                 throw new RuntimeException("Rating must be between 1 and 5");
             }
-            return reviewRepository.save(review);
+            if (review.getUser() == null || review.getProject() == null) {
+                throw new RuntimeException("User or Project is missing");
+            }
+            Review savedReview = reviewRepository.save(review);
+            String reviewerName = savedReview.getUser().getUsername();
+            return new ReviewDto(reviewerName, savedReview.getRating(), savedReview.getComment());
 
         } catch (Exception e) {
             throw new RuntimeException("Error occurred while adding the review: " + e.getMessage(), e);
@@ -37,5 +42,20 @@ public class ReviewService {
                         review.getComment()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public void deleteReviewById(Long reviewId) {
+        try {
+            Review review = reviewRepository.findById(reviewId)
+                    .orElseThrow(() -> new RuntimeException("Review not found"));
+
+            if (review.getUser() == null || review.getUser().getId() == null) {
+                throw new RuntimeException("Review has no associated user");
+            }
+            reviewRepository.delete(review);
+
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Error while deleting review: " + e.getMessage(), e);
+        }
     }
 }
