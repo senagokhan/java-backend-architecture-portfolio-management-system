@@ -1,5 +1,6 @@
 package com.senagokhan.portfolio.service;
 
+import com.senagokhan.portfolio.dto.request.UpdateReviewRequest;
 import com.senagokhan.portfolio.dto.response.ReviewDto;
 import com.senagokhan.portfolio.entity.Review;
 import com.senagokhan.portfolio.repository.ReviewRepository;
@@ -57,5 +58,18 @@ public class ReviewService {
         } catch (RuntimeException e) {
             throw new RuntimeException("Error while deleting review: " + e.getMessage(), e);
         }
+    }
+
+    public void updateReview(UpdateReviewRequest request, Long userId) {
+        Review review = reviewRepository.findById(request.getReviewId())
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        if (!review.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized: You can only edit your own review");
+        }
+
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+        reviewRepository.save(review);
     }
 }

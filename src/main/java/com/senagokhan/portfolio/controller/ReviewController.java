@@ -1,5 +1,6 @@
 package com.senagokhan.portfolio.controller;
 
+import com.senagokhan.portfolio.dto.request.UpdateReviewRequest;
 import com.senagokhan.portfolio.dto.response.ReviewDto;
 import com.senagokhan.portfolio.entity.Review;
 import com.senagokhan.portfolio.service.ReviewService;
@@ -32,6 +33,13 @@ public class ReviewController {
     @GetMapping("/project/{projectId}")
     public List<ReviewDto> getReviewsByProject(@PathVariable Long projectId) {
         return reviewService.getReviewsByProjectId(projectId);
+    }
+
+    @PutMapping("/edit")
+    public String editReview(@RequestHeader("userId") Long userId,
+                             @RequestBody UpdateReviewRequest request) {
+        reviewService.updateReview(request, userId);
+        return "Review updated!";
     }
 }
 
