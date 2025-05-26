@@ -10,8 +10,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project,Long> {
-    List<Project> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
     Page<Project> findAll(Pageable pageable);
+    @Query("SELECT p FROM Project p " +
+            "JOIN p.tags t " +
+            "WHERE t.name IN :tagNames " +
+            "GROUP BY p.id " +
+            "HAVING COUNT(DISTINCT t.id) = :tagCount")
+    List<Project> findProjectsByTags(@Param("tagNames") List<String> tagNames, @Param("tagCount") Long tagCount);
+    List<Project> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
     @Query("SELECT p FROM Project p JOIN p.tags t WHERE t.name = :tagName")
     List<Project> findByTagName(@Param("tagName") String tagName);
 }

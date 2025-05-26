@@ -5,6 +5,7 @@ import com.senagokhan.portfolio.dto.request.ProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
 import com.senagokhan.portfolio.dto.request.RemoveTagRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
+import com.senagokhan.portfolio.entity.Project;
 import com.senagokhan.portfolio.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -115,6 +116,11 @@ public class ProjectController {
     public ResponseEntity<ProjectResponse> removeTagFromProject(@RequestBody @Valid RemoveTagRequest request) {
         ProjectResponse response = projectService.removeTagFromProject(request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/filter-by-tags")
+    public List<Project> getProjectsByTags(@RequestParam List<String> tags) {
+        return projectService.getProjectsByTags(tags);
     }
 }
 

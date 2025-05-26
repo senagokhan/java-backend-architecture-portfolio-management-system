@@ -15,7 +15,6 @@ import com.senagokhan.portfolio.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -180,13 +179,19 @@ public class ProjectService {
 
         Set<Tags> existingTags = project.getTags();
 
+        Set<String> existingTagNames = existingTags.stream()
+                .map(Tags::getName)
+                .collect(Collectors.toSet());
+
+        for (String tag : request.getTags()) {
+            if (existingTagNames.contains(tag)) {
+                throw new RuntimeException("Tag already exists for this project: " + tag);
+            }
+        }
+
         Set<Tags> newTags = request.getTags().stream()
                 .map(tagName -> tagsRepository.findByName(tagName)
-                        .orElseGet(() -> {
-                            Tags newTag = new Tags();
-                            newTag.setName(tagName);
-                            return tagsRepository.save(newTag);
-                        }))
+                        .orElseThrow(() -> new RuntimeException("Tag not found: " + tagName)))
                 .collect(Collectors.toSet());
 
         existingTags.addAll(newTags);
@@ -203,6 +208,7 @@ public class ProjectService {
 
         return response;
     }
+
 
     public Page<ProjectResponse> getProjectsSortedBy(String sortBy, String sortOrder, int offset, int limit) {
         try {
@@ -294,6 +300,11 @@ public class ProjectService {
         );
 
         return response;
+    }
+
+    public List<Project> getProjectsByTags(List<String> tagNames) {
+        Long tagCount = (long) tagNames.size();
+        return projectRepository.findProjectsByTags(tagNames, tagCount);
     }
 }
 
