@@ -95,6 +95,16 @@ public class ProjectController {
         Page<ProjectResponse> sortedProjects = projectService.getProjectsSortedBy(sortBy, sortOrder, offset, limit);
         return ResponseEntity.ok(sortedProjects.getContent());
     }
+
+    @GetMapping("/sorted-by-rating")
+    public ResponseEntity<List<ProjectResponse>> getProjectsSortedByRating(
+            @RequestParam(defaultValue = "asc") String sortOrder) {
+
+        List<ProjectResponse> sortedProjects = projectService.sortProjectsByAverageRating(sortOrder);
+        return ResponseEntity.ok(sortedProjects);
+    }
+
+
 }
 
 

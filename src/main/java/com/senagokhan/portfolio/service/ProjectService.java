@@ -218,6 +218,43 @@ public class ProjectService {
             throw new RuntimeException("Error while sorting projects: " + e.getMessage(), e);
         }
     }
+    private Double calculateAverageRating(Project project) {
+        List<Review> reviews = project.getReviews();
+        if (reviews == null || reviews.isEmpty()) return 0.0;
 
+        return reviews.stream()
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0.0);
+    }
+
+    public List<ProjectResponse> sortProjectsByAverageRating(String sortOrder) {
+        try {
+            List<Project> projects = projectRepository.findAll();
+            List<ProjectResponse> averageRatingOfProject = projects.stream()
+                    .sorted((project1, project2) -> {
+                        Double avg1 = calculateAverageRating(project1);
+                        Double avg2 = calculateAverageRating(project2);
+
+                        int comparison;
+                        if ("desc".equalsIgnoreCase(sortOrder)) {
+                            comparison = Double.compare(avg2, avg1);
+                        } else {
+                            comparison = Double.compare(avg1, avg2);
+                        }
+                        return comparison;
+                    })
+                    .map(project -> {
+                        ProjectResponse response = modelMapper.map(project, ProjectResponse.class);
+                        response.setAverageRating(calculateAverageRating(project));
+                        return response;
+                    })
+                    .collect(Collectors.toList());
+            return averageRatingOfProject;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error while sorting projects by average rating: " + e.getMessage(), e);
+        }
+    }
 }
 
