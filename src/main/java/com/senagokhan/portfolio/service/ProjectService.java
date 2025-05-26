@@ -14,7 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,6 +78,13 @@ public class ProjectService {
         return page.stream()
                 .map(project -> modelMapper.map(project, ProjectResponse.class))
                 .collect(Collectors.toList());
+    }
+
+    public void deleteProjectById(Long projectId) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with ID " + projectId + " not found.");
+        }
+        projectRepository.deleteById(projectId);
     }
 
 }

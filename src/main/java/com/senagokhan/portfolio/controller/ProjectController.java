@@ -37,4 +37,10 @@ public class ProjectController {
         List<ProjectResponse> projects = projectService.getPaginatedProjects(offset, limit);
         return ResponseEntity.ok(projects);
     }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable Long projectId) {
+        projectService.deleteProjectById(projectId);
+        return ResponseEntity.ok("Project deleted successfully.");
+    }
 }
