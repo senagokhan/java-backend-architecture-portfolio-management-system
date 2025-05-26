@@ -104,7 +104,11 @@ public class ProjectController {
         return ResponseEntity.ok(sortedProjects);
     }
 
-
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProjectResponse>> filterProjectsByTag(@RequestParam String tag) {
+        List<ProjectResponse> projects = projectService.filterProjectsByTag(tag);
+        return ResponseEntity.ok(projects);
+    }
 }
 
 

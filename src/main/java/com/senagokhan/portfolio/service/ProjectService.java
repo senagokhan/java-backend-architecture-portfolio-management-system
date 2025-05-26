@@ -31,16 +31,16 @@ import java.util.stream.Collectors;
 public class ProjectService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
-    @Autowired
-    private TagsRepository tagsRepository;
-
+    private final TagsRepository tagsRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, ModelMapper modelMapper) {
+
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, TagsRepository tagsRepository, ModelMapper modelMapper) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
-        this.modelMapper = new ModelMapper();
+        this.tagsRepository = tagsRepository;
+        this.modelMapper = modelMapper;
     }
 
 
@@ -255,6 +255,21 @@ public class ProjectService {
         } catch (Exception e) {
             throw new RuntimeException("Error while sorting projects by average rating: " + e.getMessage(), e);
         }
+    }
+
+    public List<ProjectResponse> filterProjectsByTag(String tagName) {
+        List<Project> projects = projectRepository.findByTagName(tagName);
+        return projects.stream()
+                .map(project -> {
+                    ProjectResponse response = modelMapper.map(project, ProjectResponse.class);
+                    response.setTags(
+                            project.getTags().stream()
+                                    .map(Tags::getName)
+                                    .collect(Collectors.toSet())
+                    );
+                    return response;
+                })
+                .collect(Collectors.toList());
     }
 }
 
