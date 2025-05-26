@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,4 +23,6 @@ public class ProjectRequest {
 
     @NotNull(message = "Admin ID is required")
     private Long adminId;
+
+    private Set<String> tags;
 }

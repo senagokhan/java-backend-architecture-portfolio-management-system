@@ -1,5 +1,6 @@
 package com.senagokhan.portfolio.controller;
 
+import com.senagokhan.portfolio.dto.request.AddTagsToProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
@@ -70,6 +71,18 @@ public class ProjectController {
     {
         Page<ProjectResponse> projects = projectService.getSortedProjects(direction,offset,limit);
         return ResponseEntity.ok(projects.getContent());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
+        ProjectResponse project = projectService.getProjectById(id);
+        return ResponseEntity.ok(project);
+    }
+
+    @PatchMapping("/add-tags")
+    public ResponseEntity<ProjectResponse> addTagsToProject(@RequestBody AddTagsToProjectRequest request) {
+        ProjectResponse response = projectService.addTagsToProject(request);
+        return ResponseEntity.ok(response);
     }
 
 }

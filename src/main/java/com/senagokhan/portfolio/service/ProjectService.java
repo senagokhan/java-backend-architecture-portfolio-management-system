@@ -1,5 +1,6 @@
 package com.senagokhan.portfolio.service;
 
+import com.senagokhan.portfolio.dto.request.AddTagsToProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
@@ -8,10 +9,12 @@ import com.senagokhan.portfolio.entity.Review;
 import com.senagokhan.portfolio.entity.User;
 import com.senagokhan.portfolio.entity.Tags;
 import com.senagokhan.portfolio.repository.ProjectRepository;
+import com.senagokhan.portfolio.repository.TagsRepository;
 import com.senagokhan.portfolio.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
+    @Autowired
+    private TagsRepository tagsRepository;
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
@@ -40,10 +46,20 @@ public class ProjectService {
 
     public ProjectResponse createProject(ProjectRequest projectRequest) {
         User admin = userRepository.findById(projectRequest.getAdminId())
-                .orElseThrow(() -> new RuntimeException("User not found: " + projectRequest.getAdminId()));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + projectRequest.getAdminId()));
 
-        Project project = modelMapper.map(projectRequest,Project.class);
+        Project project = modelMapper.map(projectRequest, Project.class);
         project.setCreatedBy(admin);
+
+        if (projectRequest.getTags() != null && !projectRequest.getTags().isEmpty()) {
+            Set<Tags> tags = projectRequest.getTags().stream()
+                    .map(tagName -> tagsRepository.findByName(tagName)
+                            .orElseThrow(() -> new RuntimeException("Tag not found with name: " + tagName)))
+                    .collect(Collectors.toSet());
+
+            project.setTags(tags);
+        }
+
         projectRepository.save(project);
         return modelMapper.map(project, ProjectResponse.class);
     }
@@ -143,4 +159,50 @@ public class ProjectService {
         }
     }
 
+    public ProjectResponse getProjectById(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Proje bulunamadı: " + projectId));
+
+        ProjectResponse response = modelMapper.map(project, ProjectResponse.class);
+
+        response.setTags(
+                project.getTags().stream()
+                        .map(Tags::getName)
+                        .collect(Collectors.toSet())
+        );
+
+        return response;
+    }
+
+    public ProjectResponse addTagsToProject(AddTagsToProjectRequest request) {
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Project not found: " + request.getProjectId()));
+
+        Set<Tags> existingTags = project.getTags();
+
+        Set<Tags> newTags = request.getTags().stream()
+                .map(tagName -> tagsRepository.findByName(tagName)
+                        .orElseGet(() -> {
+                            Tags newTag = new Tags();
+                            newTag.setName(tagName);
+                            return tagsRepository.save(newTag);
+                        }))
+                .collect(Collectors.toSet());
+
+        existingTags.addAll(newTags);
+        project.setTags(existingTags);
+
+        Project updatedProject = projectRepository.save(project);
+
+        ProjectResponse response = modelMapper.map(updatedProject, ProjectResponse.class);
+        response.setTags(
+                updatedProject.getTags().stream()
+                        .map(Tags::getName)
+                        .collect(Collectors.toSet())
+        );
+
+        return response;
+    }
+
 }
+
