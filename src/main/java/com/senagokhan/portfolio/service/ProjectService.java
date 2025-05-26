@@ -1,9 +1,6 @@
 package com.senagokhan.portfolio.service;
 
-import com.senagokhan.portfolio.dto.request.AddTagsToProjectRequest;
-import com.senagokhan.portfolio.dto.request.ProjectRequest;
-import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
-import com.senagokhan.portfolio.dto.request.RemoveTagRequest;
+import com.senagokhan.portfolio.dto.request.*;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.entity.Project;
 import com.senagokhan.portfolio.entity.Review;
@@ -306,5 +303,19 @@ public class ProjectService {
         Long tagCount = (long) tagNames.size();
         return projectRepository.findProjectsByTags(tagNames, tagCount);
     }
+
+    public Tags editTag(EditTagRequest request) {
+        Tags tag = tagsRepository.findById(request.getTagId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag not found: " + request.getTagId()));
+
+        String newTagName = request.getNewTagName();
+        if (newTagName == null || newTagName.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The new tag name is empty or invalid.");
+        }
+
+        tag.setName(newTagName);
+        return tagsRepository.save(tag);
+    }
+
 }
 

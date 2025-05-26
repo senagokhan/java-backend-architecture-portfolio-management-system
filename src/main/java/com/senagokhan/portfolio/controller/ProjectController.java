@@ -1,11 +1,9 @@
 package com.senagokhan.portfolio.controller;
 
-import com.senagokhan.portfolio.dto.request.AddTagsToProjectRequest;
-import com.senagokhan.portfolio.dto.request.ProjectRequest;
-import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
-import com.senagokhan.portfolio.dto.request.RemoveTagRequest;
+import com.senagokhan.portfolio.dto.request.*;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.entity.Project;
+import com.senagokhan.portfolio.entity.Tags;
 import com.senagokhan.portfolio.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -121,6 +119,12 @@ public class ProjectController {
     @GetMapping("/filter-by-tags")
     public List<Project> getProjectsByTags(@RequestParam List<String> tags) {
         return projectService.getProjectsByTags(tags);
+    }
+
+    @PatchMapping("/edit-tag")
+    public ResponseEntity<Tags> editTag(@RequestBody @Valid EditTagRequest request) {
+        Tags updatedTag = projectService.editTag(request);
+        return ResponseEntity.ok(updatedTag);
     }
 }
 
