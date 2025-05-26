@@ -3,6 +3,7 @@ package com.senagokhan.portfolio.controller;
 import com.senagokhan.portfolio.dto.request.AddTagsToProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
+import com.senagokhan.portfolio.dto.request.RemoveTagRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.service.ProjectService;
 import jakarta.validation.Valid;
@@ -108,6 +109,12 @@ public class ProjectController {
     public ResponseEntity<List<ProjectResponse>> filterProjectsByTag(@RequestParam String tag) {
         List<ProjectResponse> projects = projectService.filterProjectsByTag(tag);
         return ResponseEntity.ok(projects);
+    }
+
+    @PatchMapping("/remove-tag")
+    public ResponseEntity<ProjectResponse> removeTagFromProject(@RequestBody @Valid RemoveTagRequest request) {
+        ProjectResponse response = projectService.removeTagFromProject(request);
+        return ResponseEntity.ok(response);
     }
 }
 

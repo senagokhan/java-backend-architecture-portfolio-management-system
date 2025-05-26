@@ -3,6 +3,7 @@ package com.senagokhan.portfolio.service;
 import com.senagokhan.portfolio.dto.request.AddTagsToProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectRequest;
 import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
+import com.senagokhan.portfolio.dto.request.RemoveTagRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.entity.Project;
 import com.senagokhan.portfolio.entity.Review;
@@ -42,7 +43,6 @@ public class ProjectService {
         this.tagsRepository = tagsRepository;
         this.modelMapper = modelMapper;
     }
-
 
     public ProjectResponse createProject(ProjectRequest projectRequest) {
         User admin = userRepository.findById(projectRequest.getAdminId())
@@ -161,7 +161,7 @@ public class ProjectService {
 
     public ProjectResponse getProjectById(Long projectId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Proje bulunamadı: " + projectId));
+                .orElseThrow(() -> new RuntimeException("Project not found: " + projectId));
 
         ProjectResponse response = modelMapper.map(project, ProjectResponse.class);
 
@@ -270,6 +270,30 @@ public class ProjectService {
                     return response;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public ProjectResponse removeTagFromProject(RemoveTagRequest request) {
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Project not found: " + request.getProjectId()));
+
+        Tags tagToRemove = tagsRepository.findByName(request.getTagName())
+                .orElseThrow(() -> new RuntimeException("Tag not found: " + request.getTagName()));
+
+        boolean removed = project.getTags().remove(tagToRemove);
+        if (!removed) {
+            throw new RuntimeException("The project does not have this tag: " + request.getTagName());
+        }
+
+        Project updatedProject = projectRepository.save(project);
+
+        ProjectResponse response = modelMapper.map(updatedProject, ProjectResponse.class);
+        response.setTags(
+                updatedProject.getTags().stream()
+                        .map(Tags::getName)
+                        .collect(Collectors.toSet())
+        );
+
+        return response;
     }
 }
 
