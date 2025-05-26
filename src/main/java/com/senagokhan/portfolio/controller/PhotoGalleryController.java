@@ -29,4 +29,11 @@ public class PhotoGalleryController {
         List<PhotoGalleryResponse> photos = photoGalleryService.getPhotosByProjectId(projectId);
         return ResponseEntity.ok(photos);
     }
+
+    @DeleteMapping("/delete-photo/{id}")
+    public ResponseEntity<String> deletePhotoById(@PathVariable Long id) {
+        photoGalleryService.deletePhotoById(id);
+        return ResponseEntity.ok("Photo deleted successfully.");
+    }
+
 }

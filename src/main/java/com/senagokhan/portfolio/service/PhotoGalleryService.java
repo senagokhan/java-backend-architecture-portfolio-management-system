@@ -12,6 +12,7 @@ import com.senagokhan.portfolio.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,5 +71,15 @@ public class PhotoGalleryService {
             System.err.println(ProjectConstant.error_fetching_photo + e.getMessage());
             throw new RuntimeException(ProjectConstant.unable_to_fetch + e.getMessage(), e);
         }
+    }
+
+    public void deletePhotoById(Long id) {
+        Optional<PhotoGallery> photoOpt = photoGalleryRepository.findById(id);
+
+        if (photoOpt.isEmpty()) {
+            throw new RuntimeException("No photos were found according to this project ID.");
+        }
+
+        photoGalleryRepository.deleteById(id);
     }
 }
