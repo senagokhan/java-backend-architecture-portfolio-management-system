@@ -1,7 +1,8 @@
 package com.senagokhan.portfolio.service;
 
+import com.senagokhan.portfolio.config.ProjectConstant;
 import com.senagokhan.portfolio.dto.request.PhotoUploadRequest;
-import com.senagokhan.portfolio.dto.response.PhotoGallerySaveResponse;
+import com.senagokhan.portfolio.dto.response.PhotoGalleryResponse;
 import com.senagokhan.portfolio.entity.PhotoGallery;
 import com.senagokhan.portfolio.entity.Project;
 import com.senagokhan.portfolio.entity.User;
@@ -9,6 +10,9 @@ import com.senagokhan.portfolio.repository.PhotoGalleryRepository;
 import com.senagokhan.portfolio.repository.ProjectRepository;
 import com.senagokhan.portfolio.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PhotoGalleryService {
@@ -24,13 +28,14 @@ public class PhotoGalleryService {
         this.userRepository = userRepository;
     }
 
-    public PhotoGallerySaveResponse uploadPhoto(PhotoUploadRequest request) {
+    public PhotoGalleryResponse uploadPhoto(PhotoUploadRequest request) {
         try {
             Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("Project not found"));
+                    .orElseThrow(() -> new RuntimeException(ProjectConstant.project_not_found));
 
             User user = userRepository.findById(request.getUploadedById())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new RuntimeException(ProjectConstant.user_not_found));
+
             PhotoGallery photo = new PhotoGallery();
             photo.setProject(project);
             photo.setUploadedBy(user);
@@ -38,11 +43,32 @@ public class PhotoGalleryService {
 
             photoGalleryRepository.save(photo);
 
-            return new PhotoGallerySaveResponse(project.getId(), request.getPhotoUrl());
+            return new PhotoGalleryResponse(project.getId(), request.getPhotoUrl());
 
         } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage());
-            throw new RuntimeException("Error uploading photo: " + e.getMessage(), e);
+            System.err.println(ProjectConstant.an_unexpected_error + e.getMessage());
+            throw new RuntimeException(ProjectConstant.error_upload_photo + e.getMessage(), e);
+        }
+    }
+
+    public List<PhotoGalleryResponse> getPhotosByProjectId(Long projectId) {
+        try {
+            List<PhotoGallery> photos = photoGalleryRepository.findByProjectId(projectId);
+
+            if (photos.isEmpty()) {
+                throw new RuntimeException(ProjectConstant.photo_not_found_for_project);
+            }
+
+            return photos.stream()
+                    .map(photo -> new PhotoGalleryResponse(
+                            photo.getProject().getId(),
+                            photo.getPhotoUrl()
+                    ))
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            System.err.println(ProjectConstant.error_fetching_photo + e.getMessage());
+            throw new RuntimeException(ProjectConstant.unable_to_fetch + e.getMessage(), e);
         }
     }
 }

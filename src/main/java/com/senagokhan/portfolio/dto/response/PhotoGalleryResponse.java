@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PhotoGallerySaveResponse {
+public class PhotoGalleryResponse {
     private Long projectId;
     private String photoUrl;
 }
