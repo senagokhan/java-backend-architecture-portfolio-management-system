@@ -1,8 +1,10 @@
 package com.senagokhan.portfolio.controller;
 
 import com.senagokhan.portfolio.dto.request.ProjectRequest;
+import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,5 +44,20 @@ public class ProjectController {
     public ResponseEntity<?> deleteProject(@PathVariable Long projectId) {
         projectService.deleteProjectById(projectId);
         return ResponseEntity.ok("Project deleted successfully.");
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProjectResponse>> searchProjects(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String description
+    ) {
+        List<ProjectResponse> projects = projectService.searchProjects(name, description);
+        return ResponseEntity.ok(projects);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ProjectResponse> updateProject(@Valid @RequestBody ProjectUpdateRequest updateRequest) {
+        ProjectResponse updatedProject = projectService.updateProject(updateRequest);
+        return ResponseEntity.ok(updatedProject);
     }
 }

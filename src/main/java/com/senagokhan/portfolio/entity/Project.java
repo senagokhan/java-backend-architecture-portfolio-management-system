@@ -42,5 +42,13 @@ public class Project {
         this.updatedAt = LocalDateTime.now();
     }
 
+    @ManyToMany
+    @JoinTable(
+            name = "project_tags",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tags> tags;
+
 
 }

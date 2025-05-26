@@ -1,10 +1,12 @@
 package com.senagokhan.portfolio.service;
 
 import com.senagokhan.portfolio.dto.request.ProjectRequest;
+import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.entity.Project;
 import com.senagokhan.portfolio.entity.Review;
 import com.senagokhan.portfolio.entity.User;
+import com.senagokhan.portfolio.entity.Tags;
 import com.senagokhan.portfolio.repository.ProjectRepository;
 import com.senagokhan.portfolio.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -85,6 +87,49 @@ public class ProjectService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with ID " + projectId + " not found.");
         }
         projectRepository.deleteById(projectId);
+    }
+
+    public ProjectResponse updateProject(ProjectUpdateRequest updateRequest) {
+        logger.info("The project update request has been received: ID {}", updateRequest.getId());
+
+        Project project = projectRepository.findById(updateRequest.getId())
+                .orElseThrow(() -> {
+                    logger.error("Project not found: ID {}", updateRequest.getId());
+                    return new RuntimeException("Project not found: " + updateRequest.getId());
+                });
+
+        if (updateRequest.getName() != null) {
+            project.setName(updateRequest.getName());
+        }
+        if (updateRequest.getDescription() != null) {
+            project.setDescription(updateRequest.getDescription());
+        }
+
+        Project updatedProject = projectRepository.save(project);
+        logger.info("Project updated successfully: ID {}", updatedProject.getId());
+
+        ProjectResponse response = modelMapper.map(updatedProject, ProjectResponse.class);
+        response.setTags(
+                updatedProject.getTags().stream()
+                        .map(Tags::getName)
+                        .collect(Collectors.toSet())
+        );
+
+        return response;
+    }
+
+    public List<ProjectResponse> searchProjects(String name, String description) {
+        try {
+            if ((name == null || name.isEmpty()) && (description == null || description.isEmpty())) {
+                throw new RuntimeException("Error, name and description is null or empty.");
+            }
+            List<Project> projectList = projectRepository
+                    .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(name, description);
+
+            return projectList.stream().map(project -> modelMapper.map(project, ProjectResponse.class)).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error while searching projects: " + e.getMessage(), e);
+        }
     }
 
 }
