@@ -85,4 +85,16 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/sorted-by")
+    public ResponseEntity<List<ProjectResponse>> getProjectSortedBy(
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        Page<ProjectResponse> sortedProjects = projectService.getProjectsSortedBy(sortBy, sortOrder, offset, limit);
+        return ResponseEntity.ok(sortedProjects.getContent());
+    }
 }
+
+

@@ -204,5 +204,20 @@ public class ProjectService {
         return response;
     }
 
+    public Page<ProjectResponse> getProjectsSortedBy(String sortBy, String sortOrder, int offset, int limit) {
+        try {
+            Sort.Direction direction = Sort.Direction.ASC;
+            if ("desc".equalsIgnoreCase(sortOrder)) {
+                direction = Sort.Direction.DESC;
+            }
+
+            Pageable pageable = PageRequest.of(offset, limit, Sort.by(direction, sortBy));
+            Page<Project> page = projectRepository.findAll(pageable);
+            return page.map(project -> modelMapper.map(project, ProjectResponse.class));
+        } catch (Exception e) {
+            throw new RuntimeException("Error while sorting projects: " + e.getMessage(), e);
+        }
+    }
+
 }
 
