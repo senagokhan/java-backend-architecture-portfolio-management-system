@@ -3,10 +3,10 @@ package com.senagokhan.portfolio.controller;
 import com.senagokhan.portfolio.dto.request.ProjectRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.service.ProjectService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/project")
@@ -21,5 +21,11 @@ public class ProjectController {
     @PostMapping("/create")
     public ProjectResponse createProject(@RequestBody ProjectRequest projectRequest) {
         return projectService.createProject(projectRequest);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<ProjectResponse>> getAllProjects() {
+        List<ProjectResponse> projects = projectService.getAllProjects();
+        return ResponseEntity.ok(projects);
     }
 }
