@@ -28,4 +28,13 @@ public class ProjectController {
         List<ProjectResponse> projects = projectService.getAllProjects();
         return ResponseEntity.ok(projects);
     }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<List<ProjectResponse>> getPaginatedProjects(
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        List<ProjectResponse> projects = projectService.getPaginatedProjects(offset, limit);
+        return ResponseEntity.ok(projects);
+    }
 }

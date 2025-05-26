@@ -10,6 +10,9 @@ import com.senagokhan.portfolio.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +68,14 @@ public class ProjectService {
 
         logger.info("{} projects found.", projectResponses.size());
         return projectResponses;
+    }
+
+    public List<ProjectResponse> getPaginatedProjects(int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        Page<Project> page = projectRepository.findAll(pageable);
+        return page.stream()
+                .map(project -> modelMapper.map(project, ProjectResponse.class))
+                .collect(Collectors.toList());
     }
 
 }
