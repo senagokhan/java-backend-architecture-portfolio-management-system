@@ -5,6 +5,7 @@ import com.senagokhan.portfolio.dto.request.ProjectUpdateRequest;
 import com.senagokhan.portfolio.dto.response.ProjectResponse;
 import com.senagokhan.portfolio.service.ProjectService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,4 +61,15 @@ public class ProjectController {
         ProjectResponse updatedProject = projectService.updateProject(updateRequest);
         return ResponseEntity.ok(updatedProject);
     }
+
+    @GetMapping("/sorted")
+    public ResponseEntity<List<ProjectResponse>> getSortedProjects(
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit)
+    {
+        Page<ProjectResponse> projects = projectService.getSortedProjects(direction,offset,limit);
+        return ResponseEntity.ok(projects.getContent());
+    }
+
 }
