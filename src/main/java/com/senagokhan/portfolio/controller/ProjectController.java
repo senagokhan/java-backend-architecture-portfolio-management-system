@@ -6,12 +6,13 @@ import com.senagokhan.portfolio.entity.Project;
 import com.senagokhan.portfolio.entity.Tags;
 import com.senagokhan.portfolio.service.ProjectService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/project")
 public class ProjectController {
@@ -30,6 +31,7 @@ public class ProjectController {
     @GetMapping("/all")
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         List<ProjectResponse> projects = projectService.getAllProjects();
+        log.info("Returning {} projects with average ratings.", projects.size());
         return ResponseEntity.ok(projects);
     }
 

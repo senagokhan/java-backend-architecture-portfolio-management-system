@@ -87,6 +87,7 @@ public class ProjectService {
     }
 
     public List<ProjectResponse> getPaginatedProjects(int offset, int limit) {
+        Sort sort = Sort.by(Sort.Direction.ASC, "updatedAt");
         Pageable pageable = PageRequest.of(offset, limit);
         Page<Project> page = projectRepository.findAll(pageable);
         return page.stream()
